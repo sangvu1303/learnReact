@@ -1,31 +1,65 @@
 import React from "react";
 //import { withRouter } from "react-router";
-import Color from "../HOC/Color"; 
-import Img from "../../assets/images/Img1.jpg"
+import Color from "../HOC/Color";
+import Img from "../../assets/images/Img1.jpg";
+import { connect } from "react-redux";
 
 class Home extends React.Component {
-    componentDidMount() {
-        // setTimeout(() => {
-        //     this.props.history.push('/todo')
-        // }, 3000)
-    }
+  componentDidMount() {
+    // setTimeout(() => {
+    //     this.props.history.push('/todo')
+    // }, 3000)
+  }
+  handleDeleteUser = (user) => {
+    console.log(">>> check user delete: ", user);
+    this.props.deleteUserRedux(user);
+  };
 
-    //HOC: higher order component
-    render() {
-        console.log('>>> check props: ', this.props)
-        return (
-            <>
-                <div>
-                    Hello world from Homepage
+  handleCreateUser = () => {
+    this.props.addUserRedux();
+  };
+
+  //HOC: higher order component
+  render() {
+    console.log(">>> check props redux: ", this.props.dataRedux);
+    let listUsers = this.props.dataRedux;
+    return (
+      <>
+        <div>Hello world from Homepage</div>
+        <div>
+          <img src={Img} alt="img" width={"400px"} />
+        </div>
+        <div>
+          {listUsers &&
+            listUsers.length > 0 &&
+            listUsers.map((item, index) => {
+              return (
+                <div key={item.id}>
+                  {index + 1} - {item.name}
+                  &nbsp;
+                  <span onClick={() => this.handleDeleteUser(item)}>x</span>
                 </div>
-                <div>
-                    <img src={ Img } alt="img" width={ '500px' }/>
-                </div>
-            </>
-            
-        )
-    }
+              );
+            })}
+          <button onClick={() => this.handleCreateUser()}>Add new</button>
+        </div>
+      </>
+    );
+  }
 }
 
-//export default withRouter(Home);
-export default Color(Home);
+const mapStateToProps = (state) => {
+  return {
+    dataRedux: state.users,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    deleteUserRedux: (userDelete) =>
+      dispatch({ type: "DELETE_USER", payload: userDelete }),
+    addUserRedux: () => dispatch({ type: "CREATE_USER" }),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Color(Home));
